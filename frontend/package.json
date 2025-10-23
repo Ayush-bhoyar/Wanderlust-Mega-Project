@@ -6,10 +6,15 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -p tsconfig.prod.json && vite build",
+    "build:prod": "npm run set-env && npm run build",
+    "set-env": "node scripts/set-env.js",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "format": "prettier --write .",
-    "test": "jest"
+    "test": "jest",
+    "docker:build": "docker build -t wanderlust-frontend .",
+    "docker:run": "docker run -p 3000:80 -e VITE_API_PATH=http://localhost:8080 wanderlust-frontend",
+    "docker:compose": "docker-compose up -d"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",

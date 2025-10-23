@@ -1,31 +1,32 @@
-# Stage 1
-FROM node:21 AS backend-builder
+FROM node:18-alpine AS builder
 
-# setup the working dir
 WORKDIR /app
 
-# code
+COPY package*.json .
+
+RUN npm install --omit=dev
+
 COPY . .
 
-# packages install
-RUN npm i
+RUN npm run test 
 
-# tests
-RUN npm run test
 
-# Stage 2
-FROM node:21-slim
+#-----------STAGE 2----------------#
 
-# setup the working dir
+FROM node:18-alpine 
+
 WORKDIR /app
 
-# copy the above stage as compressed
-COPY --from=backend-builder /app .
+COPY --from=builder /app .
 
-COPY .env.docker .env
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup && \
+chown -R appuser:appgroup /app
 
-# Port
+USER appuser
+
 EXPOSE 8080
 
-# App
+ENV NODE_ENV=production
+
 CMD ["npm", "start"]
+

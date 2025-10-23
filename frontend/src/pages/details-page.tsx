@@ -4,6 +4,7 @@ import formatPostTime from '@/utils/format-post-time';
 import CategoryPill from '@/components/category-pill';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { getApiUrl } from '@/config/api';
 
 export default function DetailsPage() {
   const { state } = useLocation();
@@ -16,7 +17,7 @@ export default function DetailsPage() {
   useEffect(() => {
     const getPostById = async () => {
       try {
-        await axios.get(import.meta.env.VITE_API_PATH + `/api/posts/${postId}`).then((response) => {
+        await axios.get(getApiUrl(`/api/posts/${postId}`)).then((response) => {
           console.log(response.data);
           setIsLoading(false);
           setPost(response.data);

@@ -6,6 +6,7 @@ import { FeaturedPostCardSkeleton } from '@/components/skeletons/featured-post-c
 import { LatestPostCardSkeleton } from '@/components/skeletons/latest-post-card-skeleton';
 import CategoryPill from '@/components/category-pill';
 import { categories } from '@/utils/category-colors';
+import { getApiUrl } from '@/config/api';
 
 export default function BlogFeed() {
   const [selectedCategory, setSelectedCategory] = useState('featured');
@@ -21,7 +22,7 @@ export default function BlogFeed() {
 
     setLoading(true);
     axios
-      .get(import.meta.env.VITE_API_PATH + categoryEndpoint)
+      .get(getApiUrl(categoryEndpoint))
       .then((response) => {
         setPosts(response.data);
         setLoading(false);
@@ -33,7 +34,7 @@ export default function BlogFeed() {
 
   useEffect(() => {
     axios
-      .get(import.meta.env.VITE_API_PATH + '/api/posts/latest')
+      .get(getApiUrl('/api/posts/latest'))
       .then((response) => {
         setLatestPosts(response.data);
       })

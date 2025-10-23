@@ -1,32 +1,40 @@
-# ------------------- Stage 1: Build Stage ------------------------------
-FROM node:21 AS frontend-builder
+# ---------- Build Stage ----------
+FROM node:18-alpine AS builder
 
-# Set the working directory to /app
 WORKDIR /app
 
-# Copy the package.json and package-lock.json for dependency installation
 COPY package*.json ./
 
-# Install dependencies
 RUN npm install
 
-# Copy the rest of the application code
 COPY . .
 
-# ------------------- Stage 2: Final Stage ------------------------------
-FROM node:21-slim
+# Build the application (API path will be set at runtime)
+RUN npm run build
 
-# Set the working directory to /app
-WORKDIR /app
+# ---------- Runtime Stage ----------
+FROM nginx:alpine
 
-# Copy built assets and dependencies from frontend-builder stage
-COPY --from=frontend-builder /app .
+# Install Node.js for runtime environment configuration
+RUN apk add --no-cache nodejs
 
-# Copy the .env.sample file to .env.local
-COPY .env.docker .env.local
+# Remove default Nginx static files
+RUN rm -rf /usr/share/nginx/html/*
 
-# Expose port 5173 for the Node.js application
-EXPOSE 5173
+# Copy built assets
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Define the default command to run the application in development mode
-CMD ["npm", "run", "dev", "--", "--host"]
+# Copy the environment configuration script
+COPY scripts/set-env.js /usr/local/bin/set-env.js
+RUN chmod +x /usr/local/bin/set-env.js
+
+# Create startup script
+RUN echo '#!/bin/sh' > /usr/local/bin/start.sh && \
+    echo 'node /usr/local/bin/set-env.js' >> /usr/local/bin/start.sh && \
+    echo 'nginx -g "daemon off;"' >> /usr/local/bin/start.sh && \
+    chmod +x /usr/local/bin/start.sh
+
+EXPOSE 80
+
+# Use the startup script that configures environment and starts nginx
+CMD ["/usr/local/bin/start.sh"]
