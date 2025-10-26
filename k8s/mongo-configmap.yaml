@@ -6,5 +6,5 @@ metadata:
 
 data:
   ACCESS_COOKIE_MAXAGE: "120000"
-  FRONTEND_URL: "http://192.168.1.14:32100"
+  FRONTEND_URL: "http://myapp.local"
 

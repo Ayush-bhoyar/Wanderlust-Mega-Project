@@ -8,11 +8,10 @@ spec:
   selector:
     app: frontend 
     env: stage
-  type: NodePort 
+  type: ClusterIP 
   ports:
   - port: 80
     targetPort: 80
     protocol: TCP 
     name: frontend
-    nodePort: 31100
   

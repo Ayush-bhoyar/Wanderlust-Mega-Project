@@ -5,4 +5,4 @@ metadata:
   namespace: wanderlust
 
 data:
-  VITE_API_PATH: "http://192.168.1.14:30100"
+  VITE_API_PATH: "http://myapp.local/api"
