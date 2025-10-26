@@ -21,7 +21,7 @@ spec:
       initContainers:
       - name: wait-for-backend
         image: busybox 
-        command: ["sh", "-c", "echo 'waiting for backend to be up'; until nc -zv backend-svc 8080; do echo 'still waiting'; sleep 20;  done"]
+        command: ["sh", "-c", "echo 'waiting for backend to be up'; until nc -zv backend-svc 80; do echo 'still waiting'; sleep 20;  done"]
       containers:
       - name: frontend-con 
         image: ayushdocker2607/prod-wander-front:latest 
