@@ -1,0 +1,16 @@
+kind: Service
+apiVersion: v1 
+metadata:
+  name: redis-svc 
+  namespace: wanderlust
+
+spec:
+  selector:
+    app: redis 
+    env: stage 
+  type: ClusterIP 
+  ports:
+    - port: 6379 
+      targetPort: 6379 
+      protocol: TCP 
+      name: redis

@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deploy
+  namespace: wanderlust
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: wander-back
+      env: stage
+  template:
+    metadata:
+      labels:
+        app: wander-back
+        env: stage
+    spec:
+      initContainers:
+        - name: wait-for-mongo
+          image: busybox
+          command:
+            [
+              "sh",
+              "-c",
+              "echo 'checking the mongo db port for connection'; until nc -zv mongo-svc 27017; do echo 'port is not open yet, trying again...'; sleep 10; done"
+            ]
+      nodeSelector:
+        env: stage
+        type: local
+      containers:
+        - name: backend-con
+          image: ayushdocker2607/prod-wander-backend:latest
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "250Mi"
+            limits:
+              cpu: "200m"
+              memory: "400Mi"
+          env:
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secret
+                  key: MONGO_URI
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secret
+                  key: REDIS_URL
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secret
+                  key: JWT_SECRET
+            - name: FRONTEND_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: mongo-configmap
+                  key: FRONTEND_URL
+            - name: ACCESS_COOKIE_MAXAGE
+              valueFrom:
+                configMapKeyRef:
+                  name: mongo-configmap
+                  key: ACCESS_COOKIE_MAXAGE
+            - name: ACCESS_TOKEN_EXPIRES_IN
+              value: "120s"
+            - name: REFRESH_COOKIE_MAXAGE
+              value: "120000"
+            - name: REFRESH_TOKEN_EXPIRES_IN
+              value: "120s"
+            - name: PORT
+              value: "8080"
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 40
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 2

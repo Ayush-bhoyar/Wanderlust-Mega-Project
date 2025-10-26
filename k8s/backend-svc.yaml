@@ -1,0 +1,17 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: backend-svc 
+  namespace: wanderlust 
+
+spec:
+  selector:
+    app: wander-back
+    env: stage
+
+  ports:
+  - protocol: TCP 
+    port: 80
+    targetPort: 8080
+    nodePort: 30100 
+  type: NodePort

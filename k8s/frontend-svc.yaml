@@ -1,0 +1,18 @@
+kind: Service
+apiVersion: v1 
+metadata:
+  name: frontend-svc 
+  namespace: wanderlust
+
+spec:
+  selector:
+    app: frontend 
+    env: stage
+  type: NodePort 
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP 
+    name: frontend
+    nodePort: 31100
+  

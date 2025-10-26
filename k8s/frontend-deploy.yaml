@@ -1,0 +1,61 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: frontend-deploy 
+  namespace: wanderlust 
+
+spec:
+  selector:
+    matchLabels:
+      app: frontend 
+      env: stage 
+  template:
+    metadata:
+      labels:
+        app: frontend
+        env: stage 
+    spec:
+      nodeSelector:
+        type: local 
+        env: stage
+      initContainers:
+      - name: wait-for-backend
+        image: busybox 
+        command: ["sh", "-c", "echo 'waiting for backend to be up'; until nc -zv backend-svc 8080; do echo 'still waiting'; sleep 20;  done"]
+      containers:
+      - name: frontend-con 
+        image: ayushdocker2607/prod-wander-front:latest 
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "250Mi"
+          limits:
+            cpu: "200m"
+            memory: "350Mi"
+        env:
+        - name: VITE_API_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: frontend-config 
+              key: VITE_API_PATH
+        readinessProbe:
+          tcpSocket:
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          failureThreshold: 3
+          timeoutSeconds: 5
+        livenessProbe:
+          tcpSocket:
+            port: 80
+          initialDelaySeconds: 25
+          failureThreshold: 3
+          timeoutSeconds: 3
+          periodSeconds: 5
+
+
+
+
+
