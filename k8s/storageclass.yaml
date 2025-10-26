@@ -8,6 +8,5 @@ spec:
   parameters:
     type: gp2
     fsType: ext4
-
   reclaimPolicy: Delete
   volumeBindingMode: WaitForFirstConsumer
